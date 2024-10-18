@@ -6,19 +6,25 @@ from scipy import stats
 # Set the page configuration for a dark theme
 st.set_page_config(page_title="Descriptive Statistics", layout="wide", initial_sidebar_state="expanded")
 
-# Custom CSS for dark theme and bold font
+# Custom CSS for dark theme and formal font
 st.markdown(
     """
     <style>
     body {
-        background-color: #181818; /* Dark background */
-        color: #ffffff; /* White text */
-        font-weight: bold; /* Bold font */
+        background-color: #f5f5f5; /* Light background for better contrast */
+        color: #333333; /* Dark text color */
+        font-family: Arial, sans-serif; /* Formal font */
     }
     .stTextInput, .stFileUploader, .stTextArea {
-        background-color: #303030; /* Darker input boxes */
-        color: #ffffff; /* White text */
-        border: 1px solid #ffffff; /* White border */
+        background-color: #ffffff; /* White input boxes */
+        color: #333333; /* Dark text */
+        border: 1px solid #cccccc; /* Light gray border */
+    }
+    .table-container {
+        border: 1px solid #333333; /* Border around the table */
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #ffffff; /* White background for the table */
     }
     </style>
     """,
@@ -79,7 +85,12 @@ if uploaded_file is not None:
     # Perform descriptive statistics
     st.write("### Summary Statistics")
     statistics = calculate_statistics(df.select_dtypes(include=np.number).values.flatten())
-    st.write(statistics)
+    stats_df = pd.DataFrame(statistics.items(), columns=["Statistic", "Value"])
+    
+    with st.container():
+        st.markdown("<div class='table-container'>", unsafe_allow_html=True)
+        st.table(stats_df)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # Process direct input
 elif input_values:
@@ -91,7 +102,12 @@ elif input_values:
         # Calculate descriptive statistics
         st.write("### Summary Statistics for Input Values")
         statistics = calculate_statistics(input_df["Values"])
-        st.write(statistics)
+        stats_df = pd.DataFrame(statistics.items(), columns=["Statistic", "Value"])
+        
+        with st.container():
+            st.markdown("<div class='table-container'>", unsafe_allow_html=True)
+            st.table(stats_df)
+            st.markdown("</div>", unsafe_allow_html=True)
 
     except ValueError:
         st.error("Please enter valid numerical values, separated by commas.")
@@ -99,3 +115,4 @@ elif input_values:
 # Display footer information
 st.write("---")
 st.write("Made with ❤️ using Streamlit.")
+
