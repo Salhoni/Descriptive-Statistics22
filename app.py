@@ -27,11 +27,19 @@ st.markdown(
 
 # Function to calculate descriptive statistics
 def calculate_statistics(data):
+    if len(data) == 0:
+        return {"Error": "No data provided."}
+    
+    try:
+        mode = stats.mode(data).mode[0] if len(data) > 0 else np.nan
+    except Exception:
+        mode = np.nan
+
     return {
         "Mean": np.mean(data),
         "Standard Error": stats.sem(data) if len(data) > 1 else np.nan,
         "Median": np.median(data),
-        "Mode": stats.mode(data).mode[0] if len(data) > 0 else np.nan,
+        "Mode": mode,
         "Standard Deviation": np.std(data, ddof=1) if len(data) > 1 else np.nan,  # Sample standard deviation
         "Sample Variance": np.var(data, ddof=1) if len(data) > 1 else np.nan,  # Sample variance
         "Kurtosis": stats.kurtosis(data) if len(data) > 1 else np.nan,
