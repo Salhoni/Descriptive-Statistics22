@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from scipy import stats
 
 # Set the page configuration for a dark theme
@@ -45,24 +43,6 @@ def calculate_statistics(data):
         "Count": len(data)
     }
 
-# Function to create visualizations
-def plot_statistics(statistics):
-    fig, axs = plt.subplots(nrows=4, ncols=2, figsize=(15, 10))
-    axs = axs.flatten()
-
-    # Create visualizations for each statistic
-    metrics = list(statistics.keys())
-    values = list(statistics.values())
-    
-    for i in range(len(metrics)):
-        axs[i].bar(metrics[i], values[i], color='skyblue')
-        axs[i].set_title(metrics[i])
-        axs[i].set_ylabel('Value')
-        axs[i].set_ylim(min(values) - 5, max(values) + 5)  # Set y-axis limits for better visualization
-    
-    plt.tight_layout()
-    st.pyplot(fig)
-
 # Title of the app
 st.title("Descriptive Statistics App")
 st.write("Upload your CSV, Excel, or TXT file or input numerical values to get descriptive statistics.")
@@ -71,8 +51,8 @@ st.write("Upload your CSV, Excel, or TXT file or input numerical values to get d
 uploaded_file = st.file_uploader("Choose a file", type=["csv", "xlsx", "txt"])
 
 # Direct input section
-st.write("Or enter numerical values (one per line):")
-input_values = st.text_area("Input values", height=150)
+st.write("Or enter numerical values separated by commas:")
+input_values = st.text_input("Input values", placeholder="e.g., 10, 20, 30, 40")
 
 # Process uploaded file
 if uploaded_file is not None:
@@ -93,14 +73,11 @@ if uploaded_file is not None:
     statistics = calculate_statistics(df.select_dtypes(include=np.number).values.flatten())
     st.write(statistics)
 
-    # Create visualizations
-    plot_statistics(statistics)
-
 # Process direct input
 elif input_values:
     try:
-        # Convert input values into a DataFrame
-        input_list = [float(i) for i in input_values.splitlines() if i]
+        # Convert input values into a list of floats
+        input_list = [float(i.strip()) for i in input_values.split(',') if i.strip()]
         input_df = pd.DataFrame(input_list, columns=["Values"])
 
         # Calculate descriptive statistics
@@ -108,11 +85,8 @@ elif input_values:
         statistics = calculate_statistics(input_df["Values"])
         st.write(statistics)
 
-        # Create visualizations
-        plot_statistics(statistics)
-
     except ValueError:
-        st.error("Please enter valid numerical values, one per line.")
+        st.error("Please enter valid numerical values, separated by commas.")
 
 # Display footer information
 st.write("---")
