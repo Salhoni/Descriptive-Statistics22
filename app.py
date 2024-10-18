@@ -29,16 +29,16 @@ st.markdown(
 def calculate_statistics(data):
     return {
         "Mean": np.mean(data),
-        "Standard Error": stats.sem(data),
+        "Standard Error": stats.sem(data) if len(data) > 1 else np.nan,
         "Median": np.median(data),
-        "Mode": stats.mode(data).mode[0],
-        "Standard Deviation": np.std(data, ddof=1),  # Sample standard deviation
-        "Sample Variance": np.var(data, ddof=1),  # Sample variance
-        "Kurtosis": stats.kurtosis(data),
-        "Skewness": stats.skew(data),
-        "Range": np.ptp(data),  # Peak to peak (max - min)
-        "Minimum": np.min(data),
-        "Maximum": np.max(data),
+        "Mode": stats.mode(data).mode[0] if len(data) > 0 else np.nan,
+        "Standard Deviation": np.std(data, ddof=1) if len(data) > 1 else np.nan,  # Sample standard deviation
+        "Sample Variance": np.var(data, ddof=1) if len(data) > 1 else np.nan,  # Sample variance
+        "Kurtosis": stats.kurtosis(data) if len(data) > 1 else np.nan,
+        "Skewness": stats.skew(data) if len(data) > 1 else np.nan,
+        "Range": np.ptp(data) if len(data) > 1 else np.nan,  # Peak to peak (max - min)
+        "Minimum": np.min(data) if len(data) > 0 else np.nan,
+        "Maximum": np.max(data) if len(data) > 0 else np.nan,
         "Sum": np.sum(data),
         "Count": len(data)
     }
