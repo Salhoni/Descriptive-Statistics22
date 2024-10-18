@@ -1,5 +1,9 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
 
 # Set the page configuration for a dark theme
 st.set_page_config(page_title="Descriptive Statistics", layout="wide", initial_sidebar_state="expanded")
@@ -25,7 +29,39 @@ st.markdown(
 
 # Function to calculate descriptive statistics
 def calculate_statistics(data):
-    return data.describe()
+    return {
+        "Mean": np.mean(data),
+        "Standard Error": stats.sem(data),
+        "Median": np.median(data),
+        "Mode": stats.mode(data).mode[0],
+        "Standard Deviation": np.std(data, ddof=1),  # Sample standard deviation
+        "Sample Variance": np.var(data, ddof=1),  # Sample variance
+        "Kurtosis": stats.kurtosis(data),
+        "Skewness": stats.skew(data),
+        "Range": np.ptp(data),  # Peak to peak (max - min)
+        "Minimum": np.min(data),
+        "Maximum": np.max(data),
+        "Sum": np.sum(data),
+        "Count": len(data)
+    }
+
+# Function to create visualizations
+def plot_statistics(statistics):
+    fig, axs = plt.subplots(nrows=4, ncols=2, figsize=(15, 10))
+    axs = axs.flatten()
+
+    # Create visualizations for each statistic
+    metrics = list(statistics.keys())
+    values = list(statistics.values())
+    
+    for i in range(len(metrics)):
+        axs[i].bar(metrics[i], values[i], color='skyblue')
+        axs[i].set_title(metrics[i])
+        axs[i].set_ylabel('Value')
+        axs[i].set_ylim(min(values) - 5, max(values) + 5)  # Set y-axis limits for better visualization
+    
+    plt.tight_layout()
+    st.pyplot(fig)
 
 # Title of the app
 st.title("Descriptive Statistics App")
@@ -52,9 +88,13 @@ if uploaded_file is not None:
     st.write("### Dataset Preview")
     st.write(df.head())
 
-    # Calculate and display summary statistics
+    # Perform descriptive statistics
     st.write("### Summary Statistics")
-    st.write(calculate_statistics(df))
+    statistics = calculate_statistics(df.select_dtypes(include=np.number).values.flatten())
+    st.write(statistics)
+
+    # Create visualizations
+    plot_statistics(statistics)
 
 # Process direct input
 elif input_values:
@@ -63,9 +103,13 @@ elif input_values:
         input_list = [float(i) for i in input_values.splitlines() if i]
         input_df = pd.DataFrame(input_list, columns=["Values"])
 
-        # Calculate and display summary statistics
+        # Calculate descriptive statistics
         st.write("### Summary Statistics for Input Values")
-        st.write(calculate_statistics(input_df))
+        statistics = calculate_statistics(input_df["Values"])
+        st.write(statistics)
+
+        # Create visualizations
+        plot_statistics(statistics)
 
     except ValueError:
         st.error("Please enter valid numerical values, one per line.")
